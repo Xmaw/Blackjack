@@ -21,8 +21,7 @@ deck = [Card(value, suit) for value in range(1, 14) for suit in suits]
 class Player:
     def __init__(self, name):
         self.name = name
-
-    playerCard = []
+        self.playerCard = []
 
     def append_card(self, card):
         self.playerCard.append(card)
@@ -33,6 +32,9 @@ class Player:
     def discard_card(self, index):
         self.playerCard.pop(index)
 
+    def get_hand(self):
+        return self.playerCard
+
 
 def deal(user, deck1):
     user.append_card(deck1.pop(random.randint(0, len(deck1) - 1)))
@@ -40,7 +42,11 @@ def deal(user, deck1):
 
 player = Player("player")
 dealer = Player("Dealer")
+
 deal(player, deck)
+deal(dealer, deck)
+
+print("Size of player hand: ", len(player.playerCard))
 
 print("Cards in Elias' hand: ")
 for Card in player.playerCard:
