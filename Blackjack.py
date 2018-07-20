@@ -1,6 +1,7 @@
 import random
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
 from PyQt5 import QtWidgets
+from PyQt5.QtWidgets import QLabel
 import sys
 
 
@@ -48,17 +49,36 @@ class Window(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.fold_button = QtWidgets.QPushButton('Fold', self)
+        self.deal_button = QtWidgets.QPushButton('Deal', self)
+
+        # ---- Card representations as Lables ----
+        self.player_hand = QLabel("Player hand", self)
+        self.dealer_hand = QLabel("Dealer hand", self)
+
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle("Blackjack")
-        # ---- BUTTONS ----
-        deal_button = QtWidgets.QPushButton('Deal', self)
-        fold_button = QtWidgets.QPushButton('Fold', self)
 
-        deal_button.move(55, 70)
-        fold_button.move(55, 30)
+        # ---- BUTTONS ----
+        self.deal_button.move(200, 300)
+        self.fold_button.move(200, 350)
+        self.deal_button.clicked.connect(self.deal_button_click)
+        self.fold_button.clicked.connect(self.fold_button_click)
+
+
+        # ---- LABELS ----
+        self.player_hand.move(200, 250)
+        self.dealer_hand.move(200, 50)
+
         self.show()
+
+    def deal_button_click(self):
+        self.dealer_hand.setText("New Text")
+
+    def fold_button_click(self):
+        self.player_hand.setText("New Text")
 
 
 # ----Setup for Application----
