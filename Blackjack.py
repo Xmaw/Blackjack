@@ -10,6 +10,9 @@ class Card:
         self.suit = suit
         self.value = value
 
+    def show_value(self):
+        return self.value
+
 
 suits = ["Diamonds", "Spades", "Heart", "Clubs"]
 deck = [Card(value, suit) for value in range(1, 14) for suit in suits]
@@ -35,13 +38,15 @@ def deal(player, deck1):
     player.append_card(deck1.pop(random.randint(0, len(deck1) - 1)))
 
 
-elias = Player("Elias")
-deal(elias, deck)
+player = Player("player")
+dealer = Player("Dealer")
+deal(player, deck)
+deal(dealer, deck)
 
-print("size of deck", len(elias.playerCard))
+print("size of deck", len(player.playerCard))
 
 print("Cards in Elias' hand: ")
-for Card in elias.playerCard:
+for Card in player.playerCard:
     print(Card.value, Card.suit)
 
 
@@ -53,8 +58,11 @@ class Window(QWidget):
         self.deal_button = QtWidgets.QPushButton('Deal', self)
 
         # ---- Card representations as Lables ----
-        self.player_hand = QLabel("Player hand", self)
-        self.dealer_hand = QLabel("Dealer hand", self)
+        self.dealer_hand_string = str(dealer.show_card(0).show_value())
+        self.player_hand = QLabel(str(player.show_card(0).show_value()), self)
+        self.dealer_hand = QLabel(self.dealer_hand_string, self)
+        self.player_hand.resize(200, 50)
+        self.dealer_hand.resize(200, 50)
 
         self.initUI()
 
@@ -74,10 +82,18 @@ class Window(QWidget):
         self.show()
 
     def deal_button_click(self):
-        self.dealer_hand.setText("New Text")
+        if self.valid_deal():
+            deal(player, deck)
+            string = self.player_hand.text()
+            string += ", " + str(player.show_card(len(player.playerCard)-1).value)
+            print(string)
+            self.player_hand.setText(string)
 
     def fold_button_click(self):
         self.player_hand.setText("New Text")
+
+    def valid_deal(self):
+        return True
 
 
 # ----Setup for Application----
