@@ -7,3 +7,8 @@ that constructs a deck of cards. So I am going to build upon that script.
 I aim to integrate this blackjack program to a GUI for a more immersive experience.
 However. I will start off by getting the logic and rules going before I am going to 
 get the GUI going.
+
+----PROBLEMS----
+Problem encountered with the Window function. Since I use 'self.' for almost everything
+I am not able to deal cards to the Dealer without the Dealears card will counted as
+the Players sum of cards.
