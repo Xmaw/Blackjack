@@ -34,16 +34,13 @@ class Player:
         self.playerCard.pop(index)
 
 
-def deal(player, deck1):
-    player.append_card(deck1.pop(random.randint(0, len(deck1) - 1)))
+def deal(user, deck1):
+    user.append_card(deck1.pop(random.randint(0, len(deck1) - 1)))
 
 
 player = Player("player")
 dealer = Player("Dealer")
 deal(player, deck)
-deal(dealer, deck)
-
-print("size of deck", len(player.playerCard))
 
 print("Cards in Elias' hand: ")
 for Card in player.playerCard:
@@ -82,10 +79,11 @@ class Window(QWidget):
         self.show()
 
     def deal_button_click(self):
+        deal(player, deck)
         if self.valid_deal():
-            deal(player, deck)
+            print(len(player.playerCard))
             string = self.player_hand.text()
-            string += ", " + str(player.show_card(len(player.playerCard)-1).value)
+            string += ", " + str(player.playerCard[len(player.playerCard)-1].value)
             print(string)
             self.player_hand.setText(string)
 
@@ -93,7 +91,14 @@ class Window(QWidget):
         self.player_hand.setText("New Text")
 
     def valid_deal(self):
-        return True
+        sum = 0
+        for card in player.playerCard:
+            sum += card.value
+        print("sum: ", sum)
+        if sum > 21:
+            return False
+        else:
+            return True
 
 
 # ----Setup for Application----
