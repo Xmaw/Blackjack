@@ -1,0 +1,9 @@
+The idea of this project is to get a more in depth understanding about creating
+python projects. I chose blackjack because it seems easy enough and I enjoy playing it.
+
+The first step is to be able to get deck going. I have had a python script on my computer
+that constructs a deck of cards. So I am going to build upon that script. 
+
+I aim to integrate this blackjack program to a GUI for a more immersive experience.
+However. I will start off by getting the logic and rules going before I am going to 
+get the GUI going.
