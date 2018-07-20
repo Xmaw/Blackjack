@@ -9,6 +9,11 @@ However. I will start off by getting the logic and rules going before I am going
 get the GUI going.
 
 ----PROBLEMS----
+1.
 Problem encountered with the Window function. Since I use 'self.' for almost everything
 I am not able to deal cards to the Dealer without the Dealears card will counted as
 the Players sum of cards.
+
+EDIT - Solved. The reason why was becuase I had forgotten to store each players
+hand in the constructor of the Player class. Which resulted in a global list where
+both the Dealer's cards and the Player's cards were stored.
