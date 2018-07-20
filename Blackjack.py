@@ -1,4 +1,6 @@
 import random
+from PyQt5.QtWidgets import QApplication, QWidget
+import sys
 
 
 class Card:
@@ -9,11 +11,6 @@ class Card:
 
 suits = ["Diamonds", "Spades", "Heart", "Clubs"]
 deck = [Card(value, suit) for value in range(1, 14) for suit in suits]
-print(deck.__getitem__(1).suit, deck.__getitem__(1).value)
-
-
-# for Card in deck:
-#   print(Card.suit, "|", Card.value)
 
 
 class Player:
@@ -33,30 +30,21 @@ class Player:
 
 
 def deal(player, deck):
-    player.appendCard(deck.pop(random.randint(0, len(deck)-1)))
+    player.appendCard(deck.pop(random.randint(0, len(deck) - 1)))
 
 
 elias = Player("Elias")
 deal(elias, deck)
 
-print(len(elias.playerCard))
+print("size of deck", len(elias.playerCard))
 
+print("Cards in Elias' hand: ")
 for Card in elias.playerCard:
     print(Card.value, Card.suit)
 
-while True:
-    request = input()
-    if request == "deal":
-        deal(elias, deck)
-    elif request == "done":
-        break
-    elif request == "show":
-        for Card in elias.playerCard:
-            print(Card.suit, Card.value)
-    elif request == "discard":
-        elias.discardCard(int(input("What chard do you wish to remove?")))
-    else:
-        print("Invalid request.")
-    
-
-
+# ----Setup for Application----
+app = QApplication(sys.argv)
+w = QWidget()
+w.show()
+w.setWindowTitle("Blackjack")
+sys.exit(app.exec_())
