@@ -21,18 +21,18 @@ class Player:
 
     playerCard = []
 
-    def appendCard(self, card):
+    def append_card(self, card):
         self.playerCard.append(card)
 
-    def showCard(self, value):
+    def show_card(self, value):
         return self.playerCard[value]
 
-    def discardCard(self, index):
+    def discard_card(self, index):
         self.playerCard.pop(index)
 
 
-def deal(player, deck):
-    player.appendCard(deck.pop(random.randint(0, len(deck) - 1)))
+def deal(player, deck1):
+    player.append_card(deck1.pop(random.randint(0, len(deck1) - 1)))
 
 
 elias = Player("Elias")
@@ -66,7 +66,6 @@ class Window(QWidget):
         self.fold_button.move(200, 350)
         self.deal_button.clicked.connect(self.deal_button_click)
         self.fold_button.clicked.connect(self.fold_button_click)
-
 
         # ---- LABELS ----
         self.player_hand.move(200, 250)
