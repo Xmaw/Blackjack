@@ -1,1 +1,1 @@
-An application to play Blackjack in 
+A game of cards: blackjack
