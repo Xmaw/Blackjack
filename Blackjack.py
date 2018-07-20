@@ -1,5 +1,6 @@
 import random
 from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5 import QtWidgets
 import sys
 
 
@@ -47,4 +48,16 @@ app = QApplication(sys.argv)
 w = QWidget()
 w.show()
 w.setWindowTitle("Blackjack")
+# ---- BUTTONS ----
+deal_button = QtWidgets.QPushButton('Deal')
+fold_button = QtWidgets.QPushButton('Fold')
+
+button_box = QtWidgets.QHBoxLayout()
+
+# ---- Add widgets to the Hbox ----
+button_box.addWidget(deal_button)
+button_box.addWidget(fold_button)
+
+w.setLayout(button_box)  # Add widgets to the window
+
 sys.exit(app.exec_())
