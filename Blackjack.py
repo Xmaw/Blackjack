@@ -43,21 +43,34 @@ print("Cards in Elias' hand: ")
 for Card in elias.playerCard:
     print(Card.value, Card.suit)
 
+
+class Window(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle("Blackjack")
+        # ---- BUTTONS ----
+        deal_button = QtWidgets.QPushButton('Deal')
+        fold_button = QtWidgets.QPushButton('Fold')
+
+        deal_button.move(55, 70)
+
+        # ---- Game Field BUTTONBOX ----
+        game_area = QtWidgets.QVBoxLayout()
+        game_area.addWidget(deal_button)
+        game_area.addWidget(fold_button)
+
+        # ----- Game Field GAMEAREA ----
+
+        self.setLayout(game_area)  # Add widgets to the window
+
+        self.show()
+
 # ----Setup for Application----
 app = QApplication(sys.argv)
-w = QWidget()
-w.show()
-w.setWindowTitle("Blackjack")
-# ---- BUTTONS ----
-deal_button = QtWidgets.QPushButton('Deal')
-fold_button = QtWidgets.QPushButton('Fold')
-
-button_box = QtWidgets.QHBoxLayout()
-
-# ---- Add widgets to the Hbox ----
-button_box.addWidget(deal_button)
-button_box.addWidget(fold_button)
-
-w.setLayout(button_box)  # Add widgets to the window
-
+w = Window()
+w.resize(500,500)
 sys.exit(app.exec_())
