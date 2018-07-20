@@ -53,24 +53,16 @@ class Window(QWidget):
     def initUI(self):
         self.setWindowTitle("Blackjack")
         # ---- BUTTONS ----
-        deal_button = QtWidgets.QPushButton('Deal')
-        fold_button = QtWidgets.QPushButton('Fold')
+        deal_button = QtWidgets.QPushButton('Deal', self)
+        fold_button = QtWidgets.QPushButton('Fold', self)
 
         deal_button.move(55, 70)
-
-        # ---- Game Field BUTTONBOX ----
-        game_area = QtWidgets.QVBoxLayout()
-        game_area.addWidget(deal_button)
-        game_area.addWidget(fold_button)
-
-        # ----- Game Field GAMEAREA ----
-
-        self.setLayout(game_area)  # Add widgets to the window
-
+        fold_button.move(55, 30)
         self.show()
+
 
 # ----Setup for Application----
 app = QApplication(sys.argv)
 w = Window()
-w.resize(500,500)
+w.resize(500, 500)
 sys.exit(app.exec_())
