@@ -48,18 +48,6 @@ def deal(user, deck1):
     user.append_card(deck1.pop(random.randint(0, len(deck1) - 1)))
 
 
-player = Player("player")
-dealer = Player("Dealer")
-
-deal(player, deck)
-deal(dealer, deck)
-
-print("Size of player hand: ", len(player.playerCard))
-print("Cards in Elias' hand: ")
-for Card in player.playerCard:
-    print(Card.value, Card.suit)
-
-
 class Window(QWidget):
     def __init__(self):
         super().__init__()
@@ -67,12 +55,21 @@ class Window(QWidget):
         self.fold_button = QtWidgets.QPushButton('Fold', self)
         self.deal_button = QtWidgets.QPushButton('Deal', self)
 
-        # ---- Card representations as Lables ----
-        self.dealer_hand_string = str(dealer.show_card(0).show_value())
-        self.player_hand = QLabel(str(player.show_card(0).show_value()), self)
-        self.dealer_hand = QLabel(self.dealer_hand_string, self)
-        self.player_hand.resize(200, 50)
+        # ----Dealer----
+        self.dealer_hand = QLabel(self)
+        self.dealer_hand.setText(str(dealer.playerCard[0].value))
         self.dealer_hand.resize(200, 50)
+
+        # ----Player----
+        self.player_hand_string = ""
+        for i in range(2):
+            self.player_hand_string += str(player.playerCard[i].value)
+            if i < 1:
+                self.player_hand_string += ", "
+        self.player_hand = QLabel(self.player_hand_string, self)
+        self.player_hand.resize(200, 50)
+
+        self.dealer_min = 16
 
         self.initUI()
 
@@ -92,6 +89,9 @@ class Window(QWidget):
         self.show()
 
     def fold_button_click(self):
+        while self.calculate_total(dealer) < 16:
+            deal(dealer, deck)
+
         self.calculate_winner()
 
     def calculate_winner(self):
@@ -111,10 +111,8 @@ class Window(QWidget):
         # Deal for player
         if self.player_valid_deal(player):
             deal(player, deck)
-            print(len(player.playerCard))
             string = self.player_hand.text()
             string += ", " + str(player.playerCard[len(player.playerCard) - 1].value)
-            print(string)
             self.player_hand.setText(string)
 
             sum1 = 0
@@ -138,7 +136,10 @@ class Window(QWidget):
     def calculate_total(self, p):
         i = 0
         for card in p.playerCard:
-            i += card.value
+            temp = card.value
+            if temp > 10:
+                temp = 10
+            i += temp
         return i
 
     def computer_valid_deal(self, d):
@@ -149,7 +150,7 @@ class Window(QWidget):
                 temp = 10
             sum += temp
         print("Computer sum: ", sum)
-        if sum > 16:
+        if sum > self.dealer_min:
             return False
 
         else:
@@ -165,6 +166,18 @@ class Window(QWidget):
         else:
             return True
 
+
+player = Player("player")
+dealer = Player("Dealer")
+
+deal(player, deck)
+deal(player, deck)
+deal(dealer, deck)
+
+print("Size of player hand: ", len(player.playerCard))
+print("Cards in Elias' hand: ")
+for Card in player.playerCard:
+    print(Card.value, Card.suit)
 
 # ----Setup for Application----
 app = QApplication(sys.argv)
