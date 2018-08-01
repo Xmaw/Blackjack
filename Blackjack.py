@@ -47,7 +47,6 @@ deal(player, deck)
 deal(dealer, deck)
 
 print("Size of player hand: ", len(player.playerCard))
-
 print("Cards in Elias' hand: ")
 for Card in player.playerCard:
     print(Card.value, Card.suit)
@@ -84,17 +83,6 @@ class Window(QWidget):
 
         self.show()
 
-    def deal_button_click(self):
-        deal(player, deck)
-
-        # Deal for player
-        if self.player_valid_deal():
-            print(len(player.playerCard))
-            string = self.player_hand.text()
-            string += ", " + str(player.playerCard[len(player.playerCard)-1].value)
-            print(string)
-            self.player_hand.setText(string)
-
     def fold_button_click(self):
         self.calculate_winner()
 
@@ -110,11 +98,60 @@ class Window(QWidget):
         print("Dealer: ", sum_dealer)
         print("Player: ", sum_player)
 
-    def player_valid_deal(self):
+    def deal_button_click(self):
+
+        # Deal for player
+        if self.player_valid_deal(player):
+            deal(player, deck)
+            print(len(player.playerCard))
+            string = self.player_hand.text()
+            string += ", " + str(player.playerCard[len(player.playerCard) - 1].value)
+            print(string)
+            self.player_hand.setText(string)
+
+            sum1 = 0
+            for card in player.playerCard:
+                sum1 += card.value
+            if sum1 > 21:
+                self.player_hand.setText(self.player_hand.text() + "-" + " You lost")
+
+        else:
+            print("TOO MUCHO IDIOTA!")
+
+        if self.computer_valid_deal(dealer):
+            deal(dealer, deck)
+            str1 = self.dealer_hand.text()
+            str1 += ", " + str(dealer.playerCard[len(dealer.playerCard) - 1].value)
+            self.dealer_hand.setText(str1)
+
+            if self.calculate_total(dealer) > 21:
+                self.dealer_hand.setText(self.dealer_hand.text() + "-" "Dealer LOST")
+
+    def calculate_total(self, p):
+        i = 0
+        for card in p.playerCard:
+            i += card.value
+        return i
+
+    def computer_valid_deal(self, d):
         sum = 0
-        for card in player.playerCard:
+        for card in d.playerCard:
+            temp = card.value
+            if temp > 10:
+                temp = 10
+            sum += temp
+        print("Computer sum: ", sum)
+        if sum > 16:
+            return False
+
+        else:
+            return True
+
+    def player_valid_deal(self, p):
+        sum = 0
+        for card in p.playerCard:
             sum += card.value
-        print("sum: ", sum)
+        print("Player sum: ", sum)
         if sum > 21:
             return False
         else:
