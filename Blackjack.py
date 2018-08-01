@@ -22,6 +22,8 @@ class Player:
     def __init__(self, name):
         self.name = name
         self.playerCard = []
+        self.total_money = 0
+        self.bet = 0
 
     def append_card(self, card):
         self.playerCard.append(card)
@@ -34,6 +36,12 @@ class Player:
 
     def get_hand(self):
         return self.playerCard
+
+    def add_money(self, amount):
+        self.total_money += amount
+
+    def get_money(self, amount):
+        self.total_money -= amount
 
 
 def deal(user, deck1):
