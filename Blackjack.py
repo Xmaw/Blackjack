@@ -43,6 +43,9 @@ class Player:
     def get_money(self, amount):
         self.total_money -= amount
 
+    def replay(self):
+        self.playerCard = []
+
 
 def deal(user, deck1):
     user.append_card(deck1.pop(random.randint(0, len(deck1) - 1)))
@@ -136,7 +139,23 @@ class Window(QWidget):
         self.calculate_winner()
 
     def replay_button_click(self):
-        print("hej")
+        for p in all_players:
+            print(p.name)
+            p.replay()
+
+        deal(player, deck)
+        deal(player, deck)
+        deal(dealer, deck)
+
+        self.player_hand_string = ""
+        for i in range(2):
+            self.player_hand_string += str(player.playerCard[i].value)
+            if i < 1:
+                self.player_hand_string += ", "
+        self.player_hand.setText(self.player_hand_string)
+
+        self.dealer_hand.setText(str(dealer.playerCard[0].value))
+
 
     def calculate_total(self, p):
         i = 0
@@ -178,6 +197,8 @@ dealer = Player("Dealer")
 deal(player, deck)
 deal(player, deck)
 deal(dealer, deck)
+
+all_players = [player, dealer]
 
 print("Size of player hand: ", len(player.playerCard))
 print("Cards in Elias' hand: ")
