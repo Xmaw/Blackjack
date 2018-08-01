@@ -14,10 +14,6 @@ class Card:
         return self.value
 
 
-suits = ["Diamonds", "Spades", "Heart", "Clubs"]
-deck = [Card(value, suit) for value in range(1, 14) for suit in suits]
-
-
 class Player:
     def __init__(self, name):
         self.name = name
@@ -47,8 +43,11 @@ class Player:
         self.playerCard = []
 
 
-def deal(user, deck1):
-    user.append_card(deck1.pop(random.randint(0, len(deck1) - 1)))
+def deal(user, deck):
+    if len(deck) > 40:
+        user.append_card(deck.pop(random.randint(0, len(deck) - 1)))
+    else:
+        print("Deck is out of cards!")
 
 
 class Window(QWidget):
@@ -156,7 +155,6 @@ class Window(QWidget):
 
         self.dealer_hand.setText(str(dealer.playerCard[0].value))
 
-
     def calculate_total(self, p):
         i = 0
         for card in p.playerCard:
@@ -190,6 +188,9 @@ class Window(QWidget):
         else:
             return True
 
+
+suits = ["Diamonds", "Spades", "Heart", "Clubs"]
+deck = [Card(value, suit) for value in range(1, 14) for suit in suits]
 
 player = Player("player")
 dealer = Player("Dealer")
