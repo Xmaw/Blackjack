@@ -54,6 +54,7 @@ class Window(QWidget):
 
         self.fold_button = QtWidgets.QPushButton('Fold', self)
         self.deal_button = QtWidgets.QPushButton('Deal', self)
+        self.replay_button = QtWidgets.QPushButton('Replay', self)
 
         # ----Dealer----
         self.dealer_hand = QLabel(self)
@@ -79,20 +80,16 @@ class Window(QWidget):
         # ---- BUTTONS ----
         self.deal_button.move(200, 300)
         self.fold_button.move(200, 350)
+        self.replay_button.move(200, 400)
         self.deal_button.clicked.connect(self.deal_button_click)
         self.fold_button.clicked.connect(self.fold_button_click)
+        self.replay_button.clicked.connect(self.replay_button_click)
 
         # ---- LABELS ----
         self.player_hand.move(200, 250)
         self.dealer_hand.move(200, 50)
 
         self.show()
-
-    def fold_button_click(self):
-        while self.calculate_total(dealer) < 16:
-            deal(dealer, deck)
-
-        self.calculate_winner()
 
     def calculate_winner(self):
         sum_dealer = 0
@@ -107,7 +104,6 @@ class Window(QWidget):
         print("Player: ", sum_player)
 
     def deal_button_click(self):
-
         # Deal for player
         if self.player_valid_deal(player):
             deal(player, deck)
@@ -132,6 +128,15 @@ class Window(QWidget):
 
             if self.calculate_total(dealer) > 21:
                 self.dealer_hand.setText(self.dealer_hand.text() + "-" "Dealer LOST")
+
+    def fold_button_click(self):
+        while self.calculate_total(dealer) < 16:
+            deal(dealer, deck)
+
+        self.calculate_winner()
+
+    def replay_button_click(self):
+        print("hej")
 
     def calculate_total(self, p):
         i = 0
