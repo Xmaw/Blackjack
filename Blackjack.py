@@ -94,7 +94,19 @@ class Window(QWidget):
             self.player_hand.setText(string)
 
     def fold_button_click(self):
-        self.player_hand.setText("New Text")
+        self.calculate_winner()
+
+    def calculate_winner(self):
+        sum_dealer = 0
+        for card in dealer.get_hand():
+            sum_dealer += card.value
+
+        sum_player = 0
+        for card in player.get_hand():
+            sum_player += card.value
+
+        print("Dealer: ", sum_dealer)
+        print("Player: ", sum_player)
 
     def valid_deal(self):
         sum = 0
