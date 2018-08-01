@@ -86,7 +86,9 @@ class Window(QWidget):
 
     def deal_button_click(self):
         deal(player, deck)
-        if self.valid_deal():
+
+        # Deal for player
+        if self.player_valid_deal():
             print(len(player.playerCard))
             string = self.player_hand.text()
             string += ", " + str(player.playerCard[len(player.playerCard)-1].value)
@@ -108,7 +110,7 @@ class Window(QWidget):
         print("Dealer: ", sum_dealer)
         print("Player: ", sum_player)
 
-    def valid_deal(self):
+    def player_valid_deal(self):
         sum = 0
         for card in player.playerCard:
             sum += card.value
