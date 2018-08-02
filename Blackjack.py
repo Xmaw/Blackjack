@@ -42,6 +42,9 @@ class Player:
     def replay(self):
         self.playerCard = []
 
+    def place_bet(self, amount):
+        self.bet = amount
+
 
 def deal(user, deck):
     if len(deck) > 40:
@@ -54,26 +57,30 @@ class Window(QWidget):
     def __init__(self):
         super().__init__()
 
+        # ----Buttons----
         self.fold_button = QtWidgets.QPushButton('Fold', self)
         self.deal_button = QtWidgets.QPushButton('Deal', self)
         self.replay_button = QtWidgets.QPushButton('Replay', self)
+        self.place_bet_button = QtWidgets.QPushButton('Place bet', self)
 
         # ----Dealer----
         self.dealer_hand = QLabel(self)
-        self.dealer_hand.setText(str(dealer.playerCard[0].value))
         self.dealer_hand.resize(200, 50)
+        self.dealer_min = 17
 
         # ----Player----
-        self.player_hand_string = ""
-        for i in range(2):
-            self.player_hand_string += str(player.playerCard[i].value)
-            if i < 1:
-                self.player_hand_string += ", "
-        self.player_hand = QLabel(self.player_hand_string, self)
+        self.player_hand = QLabel(self)
         self.player_hand.resize(200, 50)
+        self.player_bet = QtWidgets.QLineEdit(self)
+        self.player_bet.resize(50, 50)
+        self.player_bet.move(150, 250)
+        self.money_label = QtWidgets.QLabel("Total: $0", self)
+        self.bet_label = QtWidgets.QLabel("Current bet: $0", self)
 
-        self.dealer_min = 16
-
+        # ----Welcome label----
+        self.welcome_label = QLabel("Welcome to Blackjack!\nPlease enter your bet below.", self)
+        self.welcome_label.setStyleSheet("font: 30px")
+        self.welcome_label.setWordWrap(True)
         self.initUI()
 
     def initUI(self):
@@ -83,24 +90,39 @@ class Window(QWidget):
         self.deal_button.move(200, 300)
         self.fold_button.move(200, 350)
         self.replay_button.move(200, 400)
+        self.place_bet_button.move(150, 300)
         self.deal_button.clicked.connect(self.deal_button_click)
         self.fold_button.clicked.connect(self.fold_button_click)
         self.replay_button.clicked.connect(self.replay_button_click)
+        self.place_bet_button.clicked.connect(self.place_bet_button_click)
 
         # ---- LABELS ----
         self.player_hand.move(200, 250)
         self.dealer_hand.move(200, 50)
+        self.money_label.move(50, 350)
+        self.bet_label.move(50, 375)
+        self.bet_label.resize(200, 25)
+
+        self.hide_playfield()
 
         self.show()
 
     def calculate_winner(self):
         sum_dealer = 0
         for card in dealer.get_hand():
-            sum_dealer += card.value
+            temp = card.value
+            print("Computer", card.value)
+            if temp > 10:
+                temp = 10
+            sum_dealer += temp
 
         sum_player = 0
         for card in player.get_hand():
-            sum_player += card.value
+            temp = card.value
+            print("Player", card.value)
+            if temp > 10:
+                temp = 10
+            sum_player += temp
 
         print("Dealer: ", sum_dealer)
         print("Player: ", sum_player)
@@ -135,6 +157,14 @@ class Window(QWidget):
         while self.calculate_total(dealer) < 16:
             deal(dealer, deck)
 
+        s = ""
+        for card in dealer.playerCard:
+            print(card.value)
+            s += str(card.value)
+            s += ", "
+
+        self.dealer_hand.setText(s)
+
         self.calculate_winner()
 
     def replay_button_click(self):
@@ -142,18 +172,40 @@ class Window(QWidget):
             print(p.name)
             p.replay()
 
+        self.player_hand.setText("")
+        self.dealer_hand.setText("")
+        self.hide_playfield()
+        self.show_betfield()
+
+    def place_bet_button_click(self):
         deal(player, deck)
         deal(player, deck)
         deal(dealer, deck)
+        print(self.player_bet.text())
+        self.bet_label.setText("Current bet: $" + self.player_bet.text())
+        self.show_cards()
+        self.show_playfield()
+        self.hide_betfield()
 
-        self.player_hand_string = ""
-        for i in range(2):
-            self.player_hand_string += str(player.playerCard[i].value)
-            if i < 1:
-                self.player_hand_string += ", "
-        self.player_hand.setText(self.player_hand_string)
+    def hide_playfield(self):
+        self.fold_button.hide()
+        self.deal_button.hide()
+        self.replay_button.hide()
 
-        self.dealer_hand.setText(str(dealer.playerCard[0].value))
+    def show_playfield(self):
+        self.fold_button.show()
+        self.deal_button.show()
+        self.replay_button.show()
+
+    def hide_betfield(self):
+        self.player_bet.hide()
+        self.place_bet_button.hide()
+        self.welcome_label.hide()
+
+    def show_betfield(self):
+        self.player_bet.show()
+        self.place_bet_button.show()
+        self.welcome_label.show()
 
     def calculate_total(self, p):
         i = 0
@@ -188,16 +240,21 @@ class Window(QWidget):
         else:
             return True
 
+    def show_cards(self):
+        s = ""
+        for i in range(2):
+            s += str(player.playerCard[i].value)
+            if i < 1:
+                s += ", "
+        self.player_hand.setText(s)
+        self.dealer_hand.setText(str(dealer.playerCard[0].value))
+
 
 suits = ["Diamonds", "Spades", "Heart", "Clubs"]
 deck = [Card(value, suit) for value in range(1, 14) for suit in suits]
 
 player = Player("player")
 dealer = Player("Dealer")
-
-deal(player, deck)
-deal(player, deck)
-deal(dealer, deck)
 
 all_players = [player, dealer]
 
