@@ -1,10 +1,12 @@
 import random
 
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtWidgets import QApplication, QWidget
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QLabel
 import sys
+
+from PyQt5.uic.properties import QtGui
 
 
 class Card:
@@ -53,7 +55,7 @@ class Player:
 
 def deal(user, deck):
     if len(deck) > 0:
-        user.append_card(deck.pop(random.randint(0, len(deck))))
+        user.append_card(deck.pop(random.randint(0, len(deck)-1)))
     else:
         print("Deck is out of cards!")
 
@@ -68,11 +70,11 @@ class Window(QWidget):
         self.picture_label.setPixmap(self.pixmap)
 
         # ----Buttons----
-        self.fold_button = QtWidgets.QPushButton('Fold', self)
-        self.deal_button = QtWidgets.QPushButton('Deal', self)
+        self.stand_button = QtWidgets.QPushButton('Stand', self)
+        self.hit_button = QtWidgets.QPushButton('Hit', self)
         self.replay_button = QtWidgets.QPushButton('Replay', self)
         self.place_bet_button = QtWidgets.QPushButton('Place bet', self)
-        self.place_card_button = QtWidgets.QPushButton('Place cards in hand', self)
+        self.start_button = QtWidgets.QPushButton('Start', self)
 
         # ----Dealer----
         self.dealer_hand = QLabel(self)
@@ -84,7 +86,7 @@ class Window(QWidget):
         self.player_hand.resize(200, 50)
         self.player_bet = QtWidgets.QLineEdit(self)
         self.player_bet.resize(50, 50)
-        self.player_bet.move(150, 250)
+        self.player_bet.move(960, 650)
         self.money_label = QtWidgets.QLabel("Total: $0", self)
         self.bet_label = QtWidgets.QLabel("Current bet: $0", self)
 
@@ -96,23 +98,33 @@ class Window(QWidget):
         self.setWindowTitle("Blackjack")
 
         # ---- BUTTONS ----
-        self.deal_button.move(300, 300)
-        self.fold_button.move(200, 350)
+        self.hit_button.move(850, 750)
+        self.stand_button.move(1000, 750)
         self.replay_button.move(200, 400)
-        self.place_bet_button.move(150, 300)
-        self.deal_button.clicked.connect(self.deal_button_click)
-        self.fold_button.clicked.connect(self.fold_button_click)
+        self.place_bet_button.move(935, 750)
+        self.start_button.move(935, 785)
+        self.hit_button.clicked.connect(self.deal_button_click)
+        self.stand_button.clicked.connect(self.stand_button_clicked)
         self.replay_button.clicked.connect(self.replay_button_click)
         self.place_bet_button.clicked.connect(self.place_bet_button_click)
-        self.place_card_button.clicked.connect(self.place_cards)
+        self.start_button.clicked.connect(self.start_button_clicked)
+
 
         # ---- LABELS ----
         self.player_hand.move(200, 250)
         self.dealer_hand.move(200, 50)
-        self.money_label.move(50, 350)
-        self.bet_label.move(50, 375)
-        self.bet_label.resize(200, 25)
-        self.money_label.resize(200, 25)
+        self.money_label.move(100, 850)
+        self.money_label.setFont(QFont("Times", 12, QFont.Bold))
+        self.money_label.resize(2500, 50)
+        self.bet_label.move(100, 800)
+        self.bet_label.setFont(QFont("Times", 12, QFont.Bold))
+        self.bet_label.resize(2500, 50)
+
+        # ---- Hides some of the buttons until the round starts ----
+        self.start_button.hide()
+        self.hit_button.hide()
+        self.stand_button.hide()
+        self.replay_button.hide()
 
         self.show()
 
@@ -197,18 +209,10 @@ class Window(QWidget):
         self.place_cards(player)
         self.place_cards(dealer)
 
-    def fold_button_click(self):
+    def stand_button_clicked(self):
         while self.calculate_total(dealer) < 16:
             deal(dealer, deck)
-
-        s = ""
-        for card in dealer.hand:
-            print(card.value)
-            s += str(card.value)
-            s += ", "
-
-        self.dealer_hand.setText(s)
-
+        self.place_cards(dealer)
         self.calculate_winner()
 
     def replay_button_click(self):
@@ -222,24 +226,21 @@ class Window(QWidget):
     def place_bet_button_click(self):
         self.player_bet_amount = int(self.player_bet.text())
         self.bet_label.setText("Current bet: $" + self.player_bet.text())
-        self.show_cards()
-        self.show_playfield()
-        self.hide_betfield()
+        self.start_button.show()
 
     def hide_playfield(self):
-        self.fold_button.hide()
-        self.deal_button.hide()
+        self.stand_button.hide()
+        self.hit_button.hide()
         self.replay_button.hide()
 
     def show_playfield(self):
-        self.fold_button.show()
-        self.deal_button.show()
+        self.stand_button.show()
+        self.hit_button.show()
         self.replay_button.show()
 
     def hide_betfield(self):
         self.player_bet.hide()
         self.place_bet_button.hide()
-        self.welcome_label.hide()
 
     def show_betfield(self):
         self.player_bet.show()
@@ -287,6 +288,16 @@ class Window(QWidget):
                 s += ", "
         self.player_hand.setText(s)
         self.dealer_hand.setText(str(dealer.hand[0].value))
+
+    def start_button_clicked(self):
+        self.place_cards(player)
+        self.place_cards(dealer)
+        self.hide_betfield()
+
+        # ---- Hides start button and displays the command buttons ----
+        self.start_button.hide()
+        self.stand_button.show()
+        self.hit_button.show()
 
     def place_cards(self, p):
         print(p.name)
