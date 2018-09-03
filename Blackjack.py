@@ -1,6 +1,8 @@
 import random
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
-from PyQt5 import QtWidgets
+
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QLabel
 import sys
 
@@ -17,38 +19,41 @@ class Card:
 class Player:
     def __init__(self, name):
         self.name = name
-        self.playerCard = []
+        self.hand = []
         self.total_money = 0
         self.bet = 0
 
     def append_card(self, card):
-        self.playerCard.append(card)
+        self.hand.append(card)
 
     def show_card(self, value):
-        return self.playerCard[value]
+        return self.hand[value]
 
     def discard_card(self, index):
-        self.playerCard.pop(index)
+        self.hand.pop(index)
 
     def get_hand(self):
-        return self.playerCard
+        return self.hand
 
     def add_money(self, amount):
         self.total_money += amount
 
-    def get_money(self, amount):
+    def remove_money(self, amount):
         self.total_money -= amount
 
     def replay(self):
-        self.playerCard = []
+        self.hand = []
 
     def place_bet(self, amount):
         self.bet = amount
 
+    def get_money(self):
+        return self.total_money
+
 
 def deal(user, deck):
-    if len(deck) > 40:
-        user.append_card(deck.pop(random.randint(0, len(deck) - 1)))
+    if len(deck) > 0:
+        user.append_card(deck.pop(random.randint(0, len(deck))))
     else:
         print("Deck is out of cards!")
 
@@ -57,11 +62,17 @@ class Window(QWidget):
     def __init__(self):
         super().__init__()
 
+        # ----Background picture----
+        self.picture_label = QLabel(self)
+        self.pixmap = QPixmap('blackjack_table.jpg')
+        self.picture_label.setPixmap(self.pixmap)
+
         # ----Buttons----
         self.fold_button = QtWidgets.QPushButton('Fold', self)
         self.deal_button = QtWidgets.QPushButton('Deal', self)
         self.replay_button = QtWidgets.QPushButton('Replay', self)
         self.place_bet_button = QtWidgets.QPushButton('Place bet', self)
+        self.place_card_button = QtWidgets.QPushButton('Place cards in hand', self)
 
         # ----Dealer----
         self.dealer_hand = QLabel(self)
@@ -77,17 +88,15 @@ class Window(QWidget):
         self.money_label = QtWidgets.QLabel("Total: $0", self)
         self.bet_label = QtWidgets.QLabel("Current bet: $0", self)
 
-        # ----Welcome label----
-        self.welcome_label = QLabel("Welcome to Blackjack!\nPlease enter your bet below.", self)
-        self.welcome_label.setStyleSheet("font: 30px")
-        self.welcome_label.setWordWrap(True)
+        self.player_bet_amount = 0
+
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle("Blackjack")
 
         # ---- BUTTONS ----
-        self.deal_button.move(200, 300)
+        self.deal_button.move(300, 300)
         self.fold_button.move(200, 350)
         self.replay_button.move(200, 400)
         self.place_bet_button.move(150, 300)
@@ -95,6 +104,7 @@ class Window(QWidget):
         self.fold_button.clicked.connect(self.fold_button_click)
         self.replay_button.clicked.connect(self.replay_button_click)
         self.place_bet_button.clicked.connect(self.place_bet_button_click)
+        self.place_card_button.clicked.connect(self.place_cards)
 
         # ---- LABELS ----
         self.player_hand.move(200, 250)
@@ -102,8 +112,7 @@ class Window(QWidget):
         self.money_label.move(50, 350)
         self.bet_label.move(50, 375)
         self.bet_label.resize(200, 25)
-
-        self.hide_playfield()
+        self.money_label.resize(200, 25)
 
         self.show()
 
@@ -127,16 +136,50 @@ class Window(QWidget):
         print("Dealer: ", sum_dealer)
         print("Player: ", sum_player)
 
+        if sum_player < sum_dealer < 21:
+            print("Dealer Won!")
+            player.remove_money(self.player_bet_amount)
+            self.money_label.setText("Total: $" + str(player.get_money()))
+
+        elif sum_player > 21:
+            print("Dealer won!")
+            player.remove_money(self.player_bet_amount)
+            self.money_label.setText("Total: $" + str(player.get_money()))
+        elif sum_dealer < sum_player < 21:
+            print("Player won!")
+            player.add_money(self.player_bet_amount)
+            self.money_label.setText("Total: $" + str(player.get_money()))
+
+        elif sum_player == 21:
+            print("Blackjack!!")
+            print("Player won: $", self.player_bet_amount * 1.5)
+            player.add_money(self.player_bet_amount * 1.5)
+            self.money_label.setText("Total: $" + str(player.get_money()) * 1.5)
+
+        elif sum_dealer == 21:
+            print("Dealer won!")
+            player.remove_money(self.player_bet_amount)
+            self.money_label.setText("Total: $" + str(-player.get_money()))
+
+        elif sum_dealer < 21 and sum_player > 21:
+            print("Dealer Won!!")
+
+        elif sum_player < 21 and sum_dealer > 21:
+            print("Player Won!")
+
+        else:
+            print("Draw!")
+
     def deal_button_click(self):
         # Deal for player
+
         if self.player_valid_deal(player):
             deal(player, deck)
             string = self.player_hand.text()
-            string += ", " + str(player.playerCard[len(player.playerCard) - 1].value)
+            string += ", " + str(player.hand[len(player.hand) - 1].value)
             self.player_hand.setText(string)
-
             sum1 = 0
-            for card in player.playerCard:
+            for card in player.hand:
                 sum1 += card.value
             if sum1 > 21:
                 self.player_hand.setText(self.player_hand.text() + "-" + " You lost")
@@ -147,18 +190,19 @@ class Window(QWidget):
         if self.computer_valid_deal(dealer):
             deal(dealer, deck)
             str1 = self.dealer_hand.text()
-            str1 += ", " + str(dealer.playerCard[len(dealer.playerCard) - 1].value)
+            str1 += ", " + str(dealer.hand[len(dealer.hand) - 1].value)
             self.dealer_hand.setText(str1)
-
             if self.calculate_total(dealer) > 21:
                 self.dealer_hand.setText(self.dealer_hand.text() + "-" "Dealer LOST")
+        self.place_cards(player)
+        self.place_cards(dealer)
 
     def fold_button_click(self):
         while self.calculate_total(dealer) < 16:
             deal(dealer, deck)
 
         s = ""
-        for card in dealer.playerCard:
+        for card in dealer.hand:
             print(card.value)
             s += str(card.value)
             s += ", "
@@ -174,14 +218,9 @@ class Window(QWidget):
 
         self.player_hand.setText("")
         self.dealer_hand.setText("")
-        self.hide_playfield()
-        self.show_betfield()
 
     def place_bet_button_click(self):
-        deal(player, deck)
-        deal(player, deck)
-        deal(dealer, deck)
-        print(self.player_bet.text())
+        self.player_bet_amount = int(self.player_bet.text())
         self.bet_label.setText("Current bet: $" + self.player_bet.text())
         self.show_cards()
         self.show_playfield()
@@ -209,7 +248,7 @@ class Window(QWidget):
 
     def calculate_total(self, p):
         i = 0
-        for card in p.playerCard:
+        for card in p.hand:
             temp = card.value
             if temp > 10:
                 temp = 10
@@ -218,7 +257,7 @@ class Window(QWidget):
 
     def computer_valid_deal(self, d):
         sum = 0
-        for card in d.playerCard:
+        for card in d.hand:
             temp = card.value
             if temp > 10:
                 temp = 10
@@ -232,7 +271,7 @@ class Window(QWidget):
 
     def player_valid_deal(self, p):
         sum = 0
-        for card in p.playerCard:
+        for card in p.hand:
             sum += card.value
         print("Player sum: ", sum)
         if sum > 21:
@@ -243,11 +282,69 @@ class Window(QWidget):
     def show_cards(self):
         s = ""
         for i in range(2):
-            s += str(player.playerCard[i].value)
+            s += str(player.hand[i].value)
             if i < 1:
                 s += ", "
         self.player_hand.setText(s)
-        self.dealer_hand.setText(str(dealer.playerCard[0].value))
+        self.dealer_hand.setText(str(dealer.hand[0].value))
+
+    def place_cards(self, p):
+        print(p.name)
+        if p.name == 'player':
+            delta_y = 450
+        else:
+            delta_y = 50
+
+        delta_x = 850
+        for card in p.hand:
+            pic_label = QLabel(self)
+            pic_pixmap = QPixmap()
+            pixmap_str = 'deck/'
+
+            # Append the value of the card to the cards URL.
+            if card.value == 1:
+                pixmap_str += 'A'
+            elif card.value == 2:
+                pixmap_str += '2'
+            elif card.value == 3:
+                pixmap_str += '3'
+            elif card.value == 4:
+                pixmap_str += '4'
+            elif card.value == 5:
+                pixmap_str += '5'
+            elif card.value == 6:
+                pixmap_str += '6'
+            elif card.value == 7:
+                pixmap_str += '7'
+            elif card.value == 8:
+                pixmap_str += '8'
+            elif card.value == 9:
+                pixmap_str += '9'
+            elif card.value == 10:
+                pixmap_str += '10'
+            elif card.value == 11:
+                pixmap_str += 'J'
+            elif card.value == 12:
+                pixmap_str += 'Q'
+            elif card.value == 13:
+                pixmap_str += 'K'
+
+            # Append the character representing the suit in the cards URL
+            if card.suit == 'Diamonds':
+                pixmap_str += 'D'
+            elif card.suit == 'Spades':
+                pixmap_str += 'S'
+            elif card.suit == 'Clubs':
+                pixmap_str += 'C'
+            else:
+                pixmap_str += 'H'
+
+            pic_pixmap.load(pixmap_str)
+            pic_pixmap = pic_pixmap.scaled(150, 150, QtCore.Qt.KeepAspectRatio)
+            pic_label.setPixmap(pic_pixmap)
+            pic_label.move(delta_x, delta_y)
+            delta_x += 100
+            pic_label.show()
 
 
 suits = ["Diamonds", "Spades", "Heart", "Clubs"]
@@ -258,13 +355,19 @@ dealer = Player("Dealer")
 
 all_players = [player, dealer]
 
-print("Size of player hand: ", len(player.playerCard))
+print("Size of player hand: ", len(player.hand))
 print("Cards in Elias' hand: ")
-for Card in player.playerCard:
+for Card in player.hand:
     print(Card.value, Card.suit)
 
+deal(player, deck)
+deal(player, deck)
+deal(dealer, deck)
+
+for card in player.hand:
+    print(card.value, card.suit)
 # ----Setup for Application----
 app = QApplication(sys.argv)
 w = Window()
-w.resize(500, 500)
+w.resize(1920, 1080)
 sys.exit(app.exec_())
